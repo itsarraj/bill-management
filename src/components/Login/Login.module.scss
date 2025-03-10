@@ -1,0 +1,49 @@
+.formContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background: #1b1b1b;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  max-width: 400px;
+  margin: 2rem auto;
+
+  .error {
+    color: red;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+  }
+
+  .inputRegion {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    margin-bottom: 1rem;
+
+    label {
+      font-size: 1rem;
+      margin-bottom: 0.3rem;
+    }
+
+    input {
+      &:focus {
+        // border-color: #007bff;
+      }
+    }
+  }
+
+  .buttonSection {
+    display: flex;
+    flex-direction: row;
+    align-items: start;
+    justify-content: start;
+    width: 100%;
+    margin-top: 2rem;
+    button {
+      &:hover {
+      }
+    }
+  }
+}
