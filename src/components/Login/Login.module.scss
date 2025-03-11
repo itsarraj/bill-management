@@ -1,4 +1,4 @@
-.formContainer {
+.loginContainer {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -10,13 +10,13 @@
   max-width: 400px;
   margin: 2rem auto;
 
-  .error {
+  .error.errorMessage {
     color: red;
     font-size: 0.9rem;
     margin-bottom: 1rem;
   }
 
-  .inputRegion {
+  .formGroup {
     display: flex;
     flex-direction: column;
     width: 100%;
@@ -34,7 +34,7 @@
     }
   }
 
-  .buttonSection {
+  .loginButton {
     display: flex;
     flex-direction: row;
     align-items: start;

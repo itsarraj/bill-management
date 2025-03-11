@@ -6,8 +6,8 @@ import Login from './components/Login/Login';
 import CustomerTable from './components/CustomerTable/CustomerTable';
 import BillGenerator from './components/BillGenerator/BillGenerator';
 import Navigation from './components/Navigation/Navigation';
-import './App.css';
 import { useSelector } from 'react-redux';
+import '@/styles/main.scss';
 
 function App() {
   const dispatch = useDispatch();

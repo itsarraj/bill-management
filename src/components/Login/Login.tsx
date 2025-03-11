@@ -7,7 +7,11 @@ import styles from './Login.module.scss';
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [errors, setErrors] = useState<{email?: string; password?: string; general?: string}>({});
+  const [errors, setErrors] = useState<{
+    email?: string;
+    password?: string;
+    general?: string;
+  }>({});
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -16,7 +20,8 @@ const Login: React.FC = () => {
   };
 
   const validateForm = (): boolean => {
-    const newErrors: {email?: string; password?: string; general?: string} = {};
+    const newErrors: { email?: string; password?: string; general?: string } =
+      {};
     let isValid = true;
 
     if (!email.trim()) {
@@ -53,8 +58,9 @@ const Login: React.FC = () => {
     <div className={styles.loginContainer}>
       <div className={styles.loginCard}>
         <h2>Bill Management System</h2>
+        <br />
         <h3>Login</h3>
-
+        <br />
         <form onSubmit={handleSubmit} className={styles.form}>
           <div className={styles.formGroup}>
             <label htmlFor="email">Email</label>
@@ -66,7 +72,9 @@ const Login: React.FC = () => {
               placeholder="Enter your email"
               className={errors.email ? styles.inputError : ''}
             />
-            {errors.email && <div className={styles.errorMessage}>{errors.email}</div>}
+            {errors.email && (
+              <div className={styles.errorMessage}>{errors.email}</div>
+            )}
           </div>
 
           <div className={styles.formGroup}>
@@ -79,12 +87,18 @@ const Login: React.FC = () => {
               placeholder="Enter your password"
               className={errors.password ? styles.inputError : ''}
             />
-            {errors.password && <div className={styles.errorMessage}>{errors.password}</div>}
+            {errors.password && (
+              <div className={styles.errorMessage}>{errors.password}</div>
+            )}
           </div>
 
-          {errors.general && <div className={styles.generalError}>{errors.general}</div>}
+          {errors.general && (
+            <div className={styles.generalError}>{errors.general}</div>
+          )}
 
-          <button type="submit" className={styles.loginButton}>Login</button>
+          <button type="submit" className={styles.loginButton}>
+            Login
+          </button>
         </form>
       </div>
     </div>
