@@ -11,6 +11,8 @@ const customerSlice = createSlice({
   reducers: {
     addCustomer: (state, action: PayloadAction<Customer>) => {
       state.customers.push(action.payload);
+      // Save to localStorage whenever a customer is added
+      localStorage.setItem('customers', JSON.stringify(state.customers));
     },
     initializeCustomers: (state, action: PayloadAction<Customer[]>) => {
       state.customers = action.payload;

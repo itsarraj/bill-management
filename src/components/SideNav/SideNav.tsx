@@ -1,7 +1,12 @@
 import { NavLink } from 'react-router-dom';
 import styles from './SideNav.module.scss';
 
-const SideNav = ({ isOpen, onClose }) => {
+interface SideNavProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+const SideNav: React.FC<SideNavProps> = ({ isOpen, onClose }) => {
   return (
     <>
       {isOpen && <div className={styles.overlay} onClick={onClose}></div>}
@@ -11,8 +16,12 @@ const SideNav = ({ isOpen, onClose }) => {
           <button className={styles.closeButton} onClick={onClose}>&times;</button>
         </div>
         <nav className={styles.navLinks}>
-          <NavLink to="/customers" onClick={onClose}>Customers List</NavLink>
-          <NavLink to="/bill-generator" onClick={onClose}>Bill Generator</NavLink>
+          <NavLink to="/customers" onClick={onClose} className={({ isActive }) => isActive ? styles.active : ''}>
+            Customers List
+          </NavLink>
+          <NavLink to="/bill-generator" onClick={onClose} className={({ isActive }) => isActive ? styles.active : ''}>
+            Bill Generator
+          </NavLink>
         </nav>
       </aside>
     </>

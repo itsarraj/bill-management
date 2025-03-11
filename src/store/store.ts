@@ -2,6 +2,7 @@ import { configureStore } from '@reduxjs/toolkit';
 import authReducer from './slices/authSlice';
 import customerReducer from './slices/customerSlice';
 import billReducer from './slices/billSlice';
+// import { RootState } from '../types';
 
 const store = configureStore({
   reducer: {

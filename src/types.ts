@@ -1,22 +1,19 @@
-// Define the Product interface
+// src/types.ts
+export interface User {
+  email: string;
+}
+
+export interface AuthState {
+  isLoggedIn: boolean;
+  user: User | null;
+}
+
 export interface Product {
   name: string;
   quantity: number;
   price: number;
 }
 
-// Define the Customer interface
-export interface Customer {
-  id: string;
-  name: string;
-  quantity: number;
-  billingDate: string;
-  contact: string;
-  address: string;
-  price: number;
-}
-
-// Define the Bill interface
 export interface Bill {
   id: string;
   customerName: string;
@@ -27,22 +24,26 @@ export interface Bill {
   totalPrice: number;
 }
 
-// Define Redux state interfaces
-export interface AuthState {
-  isLoggedIn: boolean;
-  user: { email: string } | null;
-}
-
-export interface CustomerState {
-  customers: Customer[];
+export interface Customer {
+  id: string;
+  name: string;
+  quantity: number;
+  billingDate: string;
+  contact: string;
+  address: string;
+  price: number;
 }
 
 export interface BillState {
   bills: Bill[];
 }
 
+export interface CustomerState {
+  customers: Customer[];
+}
+
 export interface RootState {
   auth: AuthState;
-  customer: CustomerState;
   bill: BillState;
+  customer: CustomerState;
 }

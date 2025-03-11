@@ -11,6 +11,8 @@ const billSlice = createSlice({
   reducers: {
     addBill: (state, action: PayloadAction<Bill>) => {
       state.bills.push(action.payload);
+      // Save to localStorage whenever a bill is added
+      localStorage.setItem('bills', JSON.stringify(state.bills));
     },
     initializeBills: (state, action: PayloadAction<Bill[]>) => {
       state.bills = action.payload;

@@ -1,29 +1,21 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
+import { RootState } from '../../types';
 import styles from './CustomerTable.module.scss';
 
-interface RootState {
-  customer: {
-    customers: Array<{
-      id: string;
-      name: string;
-      quantity: number;
-      billingDate: string;
-      contact: string;
-      address: string;
-      price: number;
-    }>;
-  };
-}
-
 const CustomerTable: React.FC = () => {
+  // Use the properly typed RootState
   const customers = useSelector((state: RootState) => state.customer.customers);
 
   // Format date for display
   const formatDate = (dateString: string): string => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString();
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString();
+    } catch (e) {
+      return dateString || 'N/A';
+    }
   };
 
   // Format price with currency

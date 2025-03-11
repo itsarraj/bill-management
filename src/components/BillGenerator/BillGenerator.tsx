@@ -3,19 +3,22 @@ import { useDispatch } from 'react-redux';
 import { addBill } from '../../store/slices/billSlice';
 import { addCustomer } from '../../store/slices/customerSlice';
 import html2pdf from 'html2pdf.js';
+import { useNavigate } from 'react-router-dom';
 
 import style from './BillGenerator.module.scss';
 import SuccessModal from '../SuccessModal/SuccessModal';
+import { Product } from '../../types';
 
 const BillGenerator = () => {
   const [customerName, setCustomerName] = useState('');
   const [customerMobile, setCustomerMobile] = useState('');
   const [customerAddress, setCustomerAddress] = useState('');
   const [billingDate, setBillingDate] = useState('');
-  const [products, setProducts] = useState([
+  const [products, setProducts] = useState<Product[]>([
     { name: '', quantity: 0, price: 0 },
   ]);
   const [isModalOpen, setModalOpen] = useState(false);
+  const navigate = useNavigate();
 
   const dispatch = useDispatch();
 
@@ -29,7 +32,10 @@ const BillGenerator = () => {
     value: string | number
   ) => {
     const updatedProducts = [...products];
-    updatedProducts[index] = { ...updatedProducts[index], [field]: value };
+    updatedProducts[index] = {
+      ...updatedProducts[index],
+      [field]: field === 'name' ? value : Number(value)
+    };
     setProducts(updatedProducts);
   };
 
@@ -42,42 +48,82 @@ const BillGenerator = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Validate that we have at least one valid product
+    const validProducts = products.filter(p => p.name && p.quantity > 0 && p.price > 0);
+    if (validProducts.length === 0) {
+      alert("Please add at least one valid product with name, quantity, and price.");
+      return;
+    }
+
+    const totalPrice = calculateTotal();
+    const timestamp = Date.now();
+    const billId = timestamp.toString();
+
     const newBill = {
-      id: Date.now().toString(),
+      id: billId,
       customerName,
       customerMobile,
       customerAddress,
       billingDate,
-      products,
-      totalPrice: calculateTotal(),
+      products: validProducts,
+      totalPrice
     };
+
+    const newCustomer = {
+      id: billId,
+      name: customerName,
+      quantity: validProducts.reduce((total, product) => total + product.quantity, 0),
+      billingDate,
+      contact: customerMobile,
+      address: customerAddress,
+      price: totalPrice
+    };
+
+    // Dispatch actions to update store
     dispatch(addBill(newBill));
-    dispatch(
-      addCustomer({
-        id: Date.now().toString(),
-        name: customerName,
-        quantity: products.reduce(
-          (total, product) => total + product.quantity,
-          0
-        ),
-        billingDate,
-        contact: customerMobile,
-        address: customerAddress,
-        price: calculateTotal(),
-      })
-    );
-    setModalOpen(true); // Open success modal
+    dispatch(addCustomer(newCustomer));
+
+    setModalOpen(true);
   };
 
   const handleRemoveProduct = (index: number) => {
-    const updatedProducts = [...products];
-    updatedProducts.splice(index, 1);
-    setProducts(updatedProducts);
+    if (products.length > 1) {
+      const updatedProducts = [...products];
+      updatedProducts.splice(index, 1);
+      setProducts(updatedProducts);
+    } else {
+      // If it's the last product, just clear it rather than removing
+      setProducts([{ name: '', quantity: 0, price: 0 }]);
+    }
   };
 
   const downloadInvoice = () => {
     const element = document.getElementById('invoice');
-    html2pdf().from(element).save();
+    if (element) {
+      const opt = {
+        margin: 1,
+        filename: `invoice-${customerName}-${new Date().toISOString().slice(0, 10)}.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+      };
+      html2pdf().from(element).set(opt).save();
+    }
+  };
+
+  const handleModalClose = () => {
+    setModalOpen(false);
+
+    // Reset form after successful submission
+    setCustomerName('');
+    setCustomerMobile('');
+    setCustomerAddress('');
+    setBillingDate('');
+    setProducts([{ name: '', quantity: 0, price: 0 }]);
+
+    // Optionally navigate to customer list
+    navigate('/customers');
   };
 
   return (
@@ -140,22 +186,29 @@ const BillGenerator = () => {
               <label>Quantity</label>
               <input
                 type="number"
-                value={product.quantity}
+                min="1"
+                value={product.quantity || ''}
                 onChange={(e) =>
-                  handleProductChange(index, 'quantity', +e.target.value)
+                  handleProductChange(index, 'quantity', e.target.value)
                 }
                 required
               />
               <label>Price</label>
               <input
                 type="number"
-                value={product.price}
+                min="0.01"
+                step="0.01"
+                value={product.price || ''}
                 onChange={(e) =>
-                  handleProductChange(index, 'price', +e.target.value)
+                  handleProductChange(index, 'price', e.target.value)
                 }
                 required
               />
-              <button type="button" onClick={() => handleRemoveProduct(index)}>
+              <button
+                type="button"
+                onClick={() => handleRemoveProduct(index)}
+                className={style.removeButton}
+              >
                 Remove
               </button>
             </div>
@@ -164,54 +217,56 @@ const BillGenerator = () => {
             Add Product
           </button>
           <div className={style.total}>
-            <strong>Total Price:</strong> ${calculateTotal()}
+            <strong>Total Price:</strong> ${calculateTotal().toFixed(2)}
           </div>
           <button type="submit" className={style.submitButton}>Generate Bill</button>
         </form>
       </div>
 
-      <div id="invoice" className={style.invoice}>
-        <h2>Invoice</h2>
-        <div className={style.invoiceDetails}>
-          <p><strong>Customer:</strong> {customerName}</p>
-          <p><strong>Mobile:</strong> {customerMobile}</p>
-          <p><strong>Address:</strong> {customerAddress}</p>
-          <p><strong>Date:</strong> {billingDate}</p>
-        </div>
+      {customerName && (
+        <div id="invoice" className={style.invoice}>
+          <h2>Invoice</h2>
+          <div className={style.invoiceDetails}>
+            <p><strong>Customer:</strong> {customerName}</p>
+            <p><strong>Mobile:</strong> {customerMobile}</p>
+            <p><strong>Address:</strong> {customerAddress}</p>
+            <p><strong>Date:</strong> {billingDate}</p>
+          </div>
 
-        <table className={style.invoiceTable}>
-          <thead>
-            <tr>
-              <th>Product</th>
-              <th>Quantity</th>
-              <th>Price</th>
-              <th>Total</th>
-            </tr>
-          </thead>
-          <tbody>
-            {products.map((product, index) => (
-              <tr key={index}>
-                <td>{product.name}</td>
-                <td>{product.quantity}</td>
-                <td>${product.price}</td>
-                <td>${product.quantity * product.price}</td>
+          <table className={style.invoiceTable}>
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>Quantity</th>
+                <th>Price</th>
+                <th>Total</th>
               </tr>
-            ))}
-            <tr className={style.totalRow}>
-              <td colSpan={3}>Total</td>
-              <td>${calculateTotal()}</td>
-            </tr>
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {products.filter(p => p.name).map((product, index) => (
+                <tr key={index}>
+                  <td>{product.name}</td>
+                  <td>{product.quantity}</td>
+                  <td>${product.price.toFixed(2)}</td>
+                  <td>${(product.quantity * product.price).toFixed(2)}</td>
+                </tr>
+              ))}
+              <tr className={style.totalRow}>
+                <td colSpan={3}>Total</td>
+                <td>${calculateTotal().toFixed(2)}</td>
+              </tr>
+            </tbody>
+          </table>
 
-        <button onClick={downloadInvoice} className={style.downloadButton}>
-          Download Invoice
-        </button>
-      </div>
+          <button onClick={downloadInvoice} className={style.downloadButton}>
+            Download Invoice
+          </button>
+        </div>
+      )}
 
       <SuccessModal
         isOpen={isModalOpen}
-        onClose={() => setModalOpen(false)}
+        onClose={handleModalClose}
         message="Bill generated successfully!"
       />
     </>

@@ -1,23 +1,48 @@
 import { Dispatch } from 'redux';
 import { initializeCustomers } from '../store/slices/customerSlice';
 import { initializeBills } from '../store/slices/billSlice';
+import { Customer, Bill } from '../types';
 
 export const loadInitialData = async (dispatch: Dispatch) => {
   try {
-    // First, try to load from data.json
+    // Try to load data from localStorage first
+    const storedCustomers = localStorage.getItem('customers');
+    const storedBills = localStorage.getItem('bills');
+
+    if (storedCustomers && storedBills) {
+      try {
+        const customers = JSON.parse(storedCustomers) as Customer[];
+        const bills = JSON.parse(storedBills) as Bill[];
+        dispatch(initializeCustomers(customers));
+        dispatch(initializeBills(bills));
+        console.log('Loaded data from localStorage');
+        return;
+      } catch (e) {
+        console.warn('Error parsing localStorage data, falling back to data.json');
+      }
+    }
+
+    // Then try to load from data.json
     try {
       const response = await fetch('/src/data/data.json');
       if (response.ok) {
         const data = await response.json();
-        dispatch(initializeCustomers(data.customers || []));
-        dispatch(initializeBills(data.bills || []));
+        const customers = data.customers || [];
+        const bills = data.bills || [];
+        dispatch(initializeCustomers(customers));
+        dispatch(initializeBills(bills));
+
+        // Save to localStorage for future use
+        localStorage.setItem('customers', JSON.stringify(customers));
+        localStorage.setItem('bills', JSON.stringify(bills));
+        console.log('Loaded data from data.json');
         return;
       }
     } catch (error) {
       console.warn('Could not load from data.json, using fallback data');
     }
 
-    // Fallback data if the file fetch fails
+    // Fallback data if both methods fail
     const fallbackData = {
       customers: [
         {
@@ -65,6 +90,11 @@ export const loadInitialData = async (dispatch: Dispatch) => {
 
     dispatch(initializeCustomers(fallbackData.customers));
     dispatch(initializeBills(fallbackData.bills));
+
+    // Save fallback data to localStorage
+    localStorage.setItem('customers', JSON.stringify(fallbackData.customers));
+    localStorage.setItem('bills', JSON.stringify(fallbackData.bills));
+    console.log('Loaded fallback data');
   } catch (error) {
     console.error('Failed to load initial data:', error);
   }

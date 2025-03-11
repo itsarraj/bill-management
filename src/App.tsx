@@ -1,36 +1,44 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import Home from './pages/Home/Home';
+import { useEffect } from 'react';
+import { useDispatch } from 'react-redux';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { loadInitialData } from './utils/loadInitialData';
 import Login from './components/Login/Login';
 import CustomerTable from './components/CustomerTable/CustomerTable';
 import BillGenerator from './components/BillGenerator/BillGenerator';
 import Navigation from './components/Navigation/Navigation';
-import '@/styles/main.scss';
-import { useEffect } from 'react';
-import { Provider, useDispatch } from 'react-redux';
-import { loadInitialData } from './utils/loadInitialData';
-import store from './store/store';
+import './App.css';
+import { useSelector } from 'react-redux';
 
-
-const App = () => {
+function App() {
   const dispatch = useDispatch();
+  const isLoggedIn = useSelector((state: any) => state.auth.isLoggedIn);
 
   useEffect(() => {
+    // Load initial data
     loadInitialData(dispatch);
   }, [dispatch]);
 
   return (
-      <BrowserRouter>
+    <Router>
+      <div className="app">
         <Navigation />
-        <Routes>
-          <Route path="/" element={<Navigate to="/home" />} />
-          <Route path="/home" element={<Home />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/customers" element={<CustomerTable />} />
-          <Route path="/bill-generator" element={<BillGenerator />} />
-          <Route path="*" element={<div>404 - Page Not Found</div>} />
-        </Routes>
-      </BrowserRouter>
+        <main className="content">
+          <Routes>
+            <Route path="/login" element={!isLoggedIn ? <Login /> : <Navigate to="/customers" />} />
+            <Route
+              path="/customers"
+              element={isLoggedIn ? <CustomerTable /> : <Navigate to="/login" />}
+            />
+            <Route
+              path="/bill-generator"
+              element={isLoggedIn ? <BillGenerator /> : <Navigate to="/login" />}
+            />
+            <Route path="/" element={<Navigate to={isLoggedIn ? "/customers" : "/login"} />} />
+          </Routes>
+        </main>
+      </div>
+    </Router>
   );
-};
+}
 
 export default App;
