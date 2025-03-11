@@ -4,11 +4,12 @@ import { Link, useNavigate } from 'react-router-dom';
 import { logout } from '../../store/slices/authSlice';
 import SideNav from '../SideNav/SideNav';
 import styles from './Navigation.module.scss';
+import { RootState } from '../../store/store';
 
 const Navigation = () => {
   const [isSideNavOpen, setSideNavOpen] = useState(false);
-  const isLoggedIn = useSelector(state => state.auth.isLoggedIn);
-  const user = useSelector(state => state.auth.user);
+  const isLoggedIn = useSelector((state: RootState) => state.auth.isLoggedIn);
+  const user = useSelector((state: RootState) => state.auth.user);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
