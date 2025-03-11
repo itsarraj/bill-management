@@ -1,9 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { Bill } from '../../types'; // Define your types
-
-interface BillState {
-  bills: Bill[];
-}
+import { Bill, BillState } from '../../types';
 
 const initialState: BillState = {
   bills: [],

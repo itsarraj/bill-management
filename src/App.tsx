@@ -19,7 +19,6 @@ const App = () => {
   }, [dispatch]);
 
   return (
-    <Provider store={store}>
       <BrowserRouter>
         <Navigation />
         <Routes>
@@ -31,7 +30,6 @@ const App = () => {
           <Route path="*" element={<div>404 - Page Not Found</div>} />
         </Routes>
       </BrowserRouter>
-    </Provider>
   );
 };
 

@@ -1,11 +1,24 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import styles from './CustomerTable.module.scss';
 
-const CustomerTable: React.FC = () => {
-const customers = useSelector(state  => state.customer.customers);
+interface RootState {
+  customer: {
+    customers: Array<{
+      id: string;
+      name: string;
+      quantity: number;
+      billingDate: string;
+      contact: string;
+      address: string;
+      price: number;
+    }>;
+  };
+}
 
+const CustomerTable: React.FC = () => {
+  const customers = useSelector((state: RootState) => state.customer.customers);
 
   // Format date for display
   const formatDate = (dateString: string): string => {

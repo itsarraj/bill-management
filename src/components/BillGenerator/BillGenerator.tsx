@@ -74,6 +74,7 @@ const BillGenerator = () => {
     updatedProducts.splice(index, 1);
     setProducts(updatedProducts);
   };
+
   const downloadInvoice = () => {
     const element = document.getElementById('invoice');
     html2pdf().from(element).save();
@@ -85,6 +86,46 @@ const BillGenerator = () => {
         <h2>Bill Generator</h2>
         <form onSubmit={handleSubmit}>
           {/* Customer fields */}
+          <div className={style.formGroup}>
+            <label>Customer Name</label>
+            <input
+              type="text"
+              value={customerName}
+              onChange={(e) => setCustomerName(e.target.value)}
+              required
+            />
+          </div>
+
+          <div className={style.formGroup}>
+            <label>Customer Mobile</label>
+            <input
+              type="text"
+              value={customerMobile}
+              onChange={(e) => setCustomerMobile(e.target.value)}
+              required
+            />
+          </div>
+
+          <div className={style.formGroup}>
+            <label>Customer Address</label>
+            <textarea
+              value={customerAddress}
+              onChange={(e) => setCustomerAddress(e.target.value)}
+              required
+            />
+          </div>
+
+          <div className={style.formGroup}>
+            <label>Billing Date</label>
+            <input
+              type="date"
+              value={billingDate}
+              onChange={(e) => setBillingDate(e.target.value)}
+              required
+            />
+          </div>
+
+          <h3>Products</h3>
           {products.map((product, index) => (
             <div key={index} className={style.productGroup}>
               <label>Product Name</label>
@@ -94,6 +135,7 @@ const BillGenerator = () => {
                 onChange={(e) =>
                   handleProductChange(index, 'name', e.target.value)
                 }
+                required
               />
               <label>Quantity</label>
               <input
@@ -102,6 +144,7 @@ const BillGenerator = () => {
                 onChange={(e) =>
                   handleProductChange(index, 'quantity', +e.target.value)
                 }
+                required
               />
               <label>Price</label>
               <input
@@ -110,26 +153,60 @@ const BillGenerator = () => {
                 onChange={(e) =>
                   handleProductChange(index, 'price', +e.target.value)
                 }
+                required
               />
               <button type="button" onClick={() => handleRemoveProduct(index)}>
                 Remove
               </button>
             </div>
           ))}
-          <button type="button" onClick={handleAddProduct}>
+          <button type="button" onClick={handleAddProduct} className={style.addButton}>
             Add Product
           </button>
           <div className={style.total}>
             <strong>Total Price:</strong> ${calculateTotal()}
           </div>
-          <button type="submit">Generate Bill</button>
+          <button type="submit" className={style.submitButton}>Generate Bill</button>
         </form>
       </div>
-      <div id="invoice">
+
+      <div id="invoice" className={style.invoice}>
         <h2>Invoice</h2>
-        <p>Customer: {customerName}</p>
-        <p>Total: ${calculateTotal()}</p>
-        <button onClick={downloadInvoice}>Download Invoice</button>
+        <div className={style.invoiceDetails}>
+          <p><strong>Customer:</strong> {customerName}</p>
+          <p><strong>Mobile:</strong> {customerMobile}</p>
+          <p><strong>Address:</strong> {customerAddress}</p>
+          <p><strong>Date:</strong> {billingDate}</p>
+        </div>
+
+        <table className={style.invoiceTable}>
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>Quantity</th>
+              <th>Price</th>
+              <th>Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            {products.map((product, index) => (
+              <tr key={index}>
+                <td>{product.name}</td>
+                <td>{product.quantity}</td>
+                <td>${product.price}</td>
+                <td>${product.quantity * product.price}</td>
+              </tr>
+            ))}
+            <tr className={style.totalRow}>
+              <td colSpan={3}>Total</td>
+              <td>${calculateTotal()}</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <button onClick={downloadInvoice} className={style.downloadButton}>
+          Download Invoice
+        </button>
       </div>
 
       <SuccessModal
@@ -140,4 +217,5 @@ const BillGenerator = () => {
     </>
   );
 };
+
 export default BillGenerator;
